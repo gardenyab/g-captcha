@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Проверка капчи</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         :root {
             --bg-color: var(--tg-theme-bg-color, #ffffff);
@@ -75,12 +74,13 @@
 <body>
 
     <div class="card">
-        <h2>Подтверждение</h2>
-        <p>Пожалуйста, пройдите проверку ниже, чтобы получить доступ к чату.</p>
+        <h2 id="title"></h2>
+        <p id="description"></p>
         <div class="cf-turnstile" 
              data-sitekey="0x4AAAAAAFTCCh6gVu-7eYzM" 
              data-callback="onCaptchaSuccess" 
-             data-theme="auto">
+             data-language="ru"
+             data-theme="flexible">
         </div>
 
         <div class="spinner" id="loading-spinner"></div>
@@ -88,24 +88,52 @@
     </div>
 
     <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const lang = urlParams.get('lang') || 'ru';
+        const translations = {
+            ru: {
+                title: 'Подтверждение',
+                description: 'Пожалуйста, пройдите проверку ниже, чтобы получить доступ к чату.',
+                sending: 'Проверка успешна, отправка данных...',
+                error: 'Ошибка отправки данных. Попробуйте снова.'
+            },
+            en: {
+                title: 'Verification',
+                description: 'Please complete the verification below to access the chat.',
+                sending: 'Verification successful, sending data...',
+                error: 'Error sending data. Please try again.'
+            }
+        };
+        const currentLang = Object.prototype.hasOwnProperty.call(translations, lang) ? lang : 'ru';
+        const text = translations[currentLang];
+        const chatId = urlParams.get('chat_id') || null;
         const tg = window.Telegram.WebApp;
+
+        document.documentElement.lang = currentLang;
+        document.title = text.title;
+        document.getElementById('title').innerText = text.title;
+        document.getElementById('description').innerText = text.description;
+        document.querySelector('.cf-turnstile').dataset.language = currentLang;
+
         tg.expand();
         function onCaptchaSuccess(token) {
             document.querySelector('.cf-turnstile').style.display = 'none';
             document.getElementById('loading-spinner').style.display = 'block';
             document.getElementById('status-text').style.color = 'var(--text-color)';
-            document.getElementById('status-text').innerText = 'Проверка успешна, отправка данных...';
+            document.getElementById('status-text').innerText = text.sending;
 
             try {
                 tg.sendData(JSON.stringify({ 
                     status: "success",
-                    token: token 
+                    token: token ,
+                    chatId: chatId
                 }));
             } catch (e) {
-                document.getElementById('status-text').innerText = 'Ошибка отправки данных. Попробуйте снова.';
+                document.getElementById('status-text').innerText = text.error;
                 document.getElementById('loading-spinner').style.display = 'none';
             }
         }
     </script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </body>
 </html>
