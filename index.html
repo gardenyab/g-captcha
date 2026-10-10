@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Проверка капчи</title>
-    <!-- Официальный скрипт Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Официальный скрипт Cloudflare Turnstile -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         :root {
@@ -79,11 +77,8 @@
     <div class="card">
         <h2>Подтверждение</h2>
         <p>Пожалуйста, пройдите проверку ниже, чтобы получить доступ к чату.</p>
-
-        <!-- Виджет Cloudflare Turnstile -->
-        <!-- Замените data-sitekey на ваш ключ (для тестов Cloudflare предоставляет тестовые ключи) -->
         <div class="cf-turnstile" 
-             data-sitekey="1x00000000000000000000AA" 
+             data-sitekey="0x4AAAAAAFTCCh6gVu-7eYzM" 
              data-callback="onCaptchaSuccess" 
              data-theme="auto">
         </div>
@@ -94,17 +89,13 @@
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Разворачиваем приложение на весь экран
-
-        // Эта функция автоматически вызывается, когда пользователь успешно проходит капчу
+        tg.expand();
         function onCaptchaSuccess(token) {
-            // Скрываем капчу, показываем анимацию загрузки
             document.querySelector('.cf-turnstile').style.display = 'none';
             document.getElementById('loading-spinner').style.display = 'block';
             document.getElementById('status-text.style.color') = 'var(--text-color)';
             document.getElementById('status-text').innerText = 'Проверка успешна, отправка данных...';
 
-            // Отправляем сигнал боту в ЛС через Telegram Web App API
             try {
                 tg.sendData(JSON.stringify({ 
                     status: "success",
