@@ -113,6 +113,7 @@
         const currentLang = Object.prototype.hasOwnProperty.call(translations, lang) ? lang : 'ru';
         const text = translations[currentLang];
         const chatId = urlParams.get('chat_id') || null;
+        const captchaId = urlParams.get('captcha_id') || null;
         const tg = window.Telegram.WebApp;
 
         document.documentElement.lang = currentLang;
@@ -132,7 +133,8 @@
                 tg.sendData(JSON.stringify({ 
                     status: "success",
                     token: token ,
-                    chatId: chatId
+                    chatId: chatId,
+                    captchaId: captchaId
                 }));
             } catch (e) {
                 document.getElementById('status-text').innerText = text.error;
