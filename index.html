@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проверка капчи</title>
+    <!-- Официальный скрипт Telegram Web App -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Официальный скрипт Cloudflare Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #ffffff);
+            --text-color: var(--tg-theme-text-color, #000000);
+            --hint-color: var(--tg-theme-hint-color, #999999);
+            --button-color: var(--tg-theme-button-color, #3887be);
+            --button-text-color: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .card {
+            text-align: center;
+            max-width: 320px;
+            width: 100%;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        p {
+            font-size: 14px;
+            color: var(--hint-color);
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+
+        .spinner {
+            display: none;
+            margin: 20px auto;
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--hint-color);
+            border-top: 3px solid var(--button-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #status-text {
+            font-size: 14px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Подтверждение</h2>
+        <p>Пожалуйста, пройдите проверку ниже, чтобы получить доступ к чату.</p>
+
+        <!-- Виджет Cloudflare Turnstile -->
+        <!-- Замените data-sitekey на ваш ключ (для тестов Cloudflare предоставляет тестовые ключи) -->
+        <div class="cf-turnstile" 
+             data-sitekey="1x00000000000000000000AA" 
+             data-callback="onCaptchaSuccess" 
+             data-theme="auto">
+        </div>
+
+        <div class="spinner" id="loading-spinner"></div>
+        <div id="status-text"></div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачиваем приложение на весь экран
+
+        // Эта функция автоматически вызывается, когда пользователь успешно проходит капчу
+        function onCaptchaSuccess(token) {
+            // Скрываем капчу, показываем анимацию загрузки
+            document.querySelector('.cf-turnstile').style.display = 'none';
+            document.getElementById('loading-spinner').style.display = 'block';
+            document.getElementById('status-text.style.color') = 'var(--text-color)';
+            document.getElementById('status-text').innerText = 'Проверка успешна, отправка данных...';
+
+            // Отправляем сигнал боту в ЛС через Telegram Web App API
+            try {
+                tg.sendData(JSON.stringify({ 
+                    status: "success",
+                    token: token 
+                }));
+            } catch (e) {
+                document.getElementById('status-text').innerText = 'Ошибка отправки данных. Попробуйте снова.';
+                document.getElementById('loading-spinner').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
