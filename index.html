@@ -93,7 +93,7 @@
         function onCaptchaSuccess(token) {
             document.querySelector('.cf-turnstile').style.display = 'none';
             document.getElementById('loading-spinner').style.display = 'block';
-            document.getElementById('status-text.style.color') = 'var(--text-color)';
+            document.getElementById('status-text').style.color = 'var(--text-color)';
             document.getElementById('status-text').innerText = 'Проверка успешна, отправка данных...';
 
             try {
